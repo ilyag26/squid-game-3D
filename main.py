@@ -9,19 +9,31 @@ models = {
     "doll" : "models/doll.obj",
     "tree" : "models/tree.obj",
 }
+
 textures = {
-         "sky":"textures/sky.png",
-         "sand":"textures/sand.png",
+    "sky":"textures/sky.png",
+    "sand":"textures/sand.png",
+    "field" : "textures/field.png",
 }
 
-env = Entity()
+class Staff: 
+    def __init__(self, rot_x, rot_y, rot_z, pos_x, pos_y, pos_z, scale):
+        self.staff = Entity(model=models['staff'], rotation=(0, -180, 0), scale=scale)
+        self.staff.position = Vec3(pos_x, pos_y, pos_z)
+
+class Walls:
+    def __init__(self, scale_x, scale_z, rot_x, rot_y, rot_z, pos_x, pos_y, pos_z):
+        self.wall = Entity(model = 'plane',
+                        scale_x = scale_x, scale_z = scale_z, 
+                        rotation_y = rot_y, rotation_x = rot_x, rotation_z = rot_z,
+                        collider='box', texture = textures['field'])
+        self.wall.position = Vec3(pos_x, pos_y, pos_z)
+
 ground = Entity(model='plane', collider='box', scale=150, texture=textures['sand'])
 
-staff = Entity(model=models['staff'], rotation=(0, -180, 0), scale=1.5)
-staff.position = Vec3(4,0,-52)
-
-staff2 = Entity(model=models['staff'], rotation=(0, -180, 0), scale=1.5)
-staff2.position = Vec3(-4,0,-52)
+#rot_x, rot_y, rot_z, pos_x, pos_y, pos_z, scale
+staff = Staff(0, -180, 0, 4, 0, -52, 1.5)
+staff2 = Staff(0, -180, 0, -4, 0, -52, 1.5)
 
 doll = Entity(model=models['doll'], rotation=(0, -180, 0), shader = lit_with_shadows_shader)
 doll.position = Vec3(0,0,-52)
@@ -33,17 +45,11 @@ player = FirstPersonController(model='cube', z=-10, rotation=(0, -180, 0), color
 player.collider = BoxCollider(player, Vec3(0,1,0), Vec3(1,2,1))
 player.position = Vec3(0,0,45)
 
-wall1 = Entity(model='plane', scale_x=100, scale_z=70, rotation_x = 90, collider='box', color = color.blue)
-wall1.position = Vec3(0,0,-75)
-
-wall2 = Entity(model='plane', scale_x=170, scale_z=70, rotation_x = 90, rotation_y = -90, collider='box', color = color.blue)
-wall2.position = Vec3(50,0,-30)
-
-wall3 = Entity(model='plane', scale_x=170, scale_z=70, rotation_x = 90, rotation_y = 90, collider='box', color = color.blue)
-wall3.position = Vec3(-50,0,-30)
-
-wall3 = Entity(model='plane', scale_x=100, scale_z=70, rotation_x = 90, rotation_y = -180, collider='box', color = color.blue)
-wall3.position = Vec3(0,0,50)
+#scale_x, scale_z, rotation_x, rotation_y, rotation_z, pos_x, pos_y, pos_z
+front_wall = Walls(100, 70, 90, 0, 0, 0, 0, -75)
+left_wall = Walls(170, 70, 90, -90, 0, 50, 0, -30)
+right_wall = Walls(170, 70, 90, 90, 0, -50, 0, -30)
+back_wall = Walls(100, 70, 90, -180, 0, 0, 0, 50)
 
 window.color = color.rgb(135,206,250)
 
@@ -59,6 +65,6 @@ def input(key):
     if key == 'escape':
         quit()
 
+
 Sky()
 app.run()
-print(player.position)
