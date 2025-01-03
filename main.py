@@ -61,8 +61,11 @@ def light():
     invoke(update_text_green, delay=3)
 
 ground = Entity(model='plane', collider='box', scale=150, texture=textures['sand'])
-line = Entity(model='plane', scale_x = 100, scale_y = 50, color = color.red)
-line.position = Vec3(0, 0.08, -40)
+line = Entity(model='wireframe_cube', scale_x = 3, scale_y = 3, collider = "box", color = color.red)
+line.position = Vec3(0, 0.1, -40)
+linew = Entity(model='wireframe_cube', scale_x = 1, scale_y = 1, collider = "box", color = color.green)
+linew.position = Vec3(0, 0.1, -40)
+# line.position = Vec3(0, 0.08, -40)
 
 #scale_x, scale_z, rotation_x, rotation_y, rotation_z, pos_x, pos_y, pos_z
 front_wall = Walls(100, 70, 90, 0, 0, 0, 0, -75)
@@ -80,9 +83,14 @@ doll.position = Vec3(0, 0, -52)
 tree = Entity(model=models['tree'], rotation=(0, -90, 0), shader = lit_with_shadows_shader)
 tree.position = Vec3(0, 0, -55.5)
 
-player = FirstPersonController(model='cube', z=-10, rotation=(0, -180, 0), color=color.gray, origin_y=-.5, speed=13, collider='box')
-player.collider = BoxCollider(player, Vec3(0, 1, 0), Vec3(1, 2, 1))
+player = FirstPersonController(model='cube', z=-10, rotation=(0, -180, 0), color=color.gray, origin_y=-.5, speed=13)
 player.position = Vec3(0, 0, 45)
+text1 = Text(text="000", scale=3, x=-.83, y=.45) 
+
+def update():
+    if player.intersects(linew).hit:
+        text1.text = "4783"
+        print("fjkdsvnvkjnfdskvn")
 
 window.color = color.rgb(135, 206, 250)
 
