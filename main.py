@@ -61,10 +61,8 @@ def light():
     invoke(update_text_green, delay=3)
 
 ground = Entity(model='plane', collider='box', scale=150, texture=textures['sand'])
-line = Entity(model='wireframe_cube', scale_x = 3, scale_y = 3, collider = "box", color = color.red)
-line.position = Vec3(0, 0.1, -40)
-linew = Entity(model='wireframe_cube', scale_x = 1, scale_y = 1, collider = "box", color = color.green)
-linew.position = Vec3(0, 0.1, -40)
+line = Entity(model='cube', scale_x = 100, scale_y = 3, collider = "box", color = color.red)
+line.position = Vec3(0, 0, -40)
 # line.position = Vec3(0, 0.08, -40)
 
 #scale_x, scale_z, rotation_x, rotation_y, rotation_z, pos_x, pos_y, pos_z
@@ -83,14 +81,20 @@ doll.position = Vec3(0, 0, -52)
 tree = Entity(model=models['tree'], rotation=(0, -90, 0), shader = lit_with_shadows_shader)
 tree.position = Vec3(0, 0, -55.5)
 
-player = FirstPersonController(model='cube', z=-10, rotation=(0, -180, 0), color=color.gray, origin_y=-.5, speed=13)
+player = FirstPersonController(model='cube', scale = 0.5, z=-10, rotation=(0, -180, 0), color=color.gray, origin_y=-.4, speed=13)
 player.position = Vec3(0, 0, 45)
 text1 = Text(text="000", scale=3, x=-.83, y=.45) 
 
+cube_player = Entity(model="cube", scale = 1, color = color.orange, collider="box")
+cube_player.position = Vec3(0, 0, 45)
+
 def update():
-    if player.intersects(linew).hit:
-        text1.text = "4783"
-        print("fjkdsvnvkjnfdskvn")
+    cube_player.position = player.position
+
+    if line.intersects(cube_player).hit:
+        text1.text = "has cruzado linea"
+    else:
+        text1.text = ""
 
 window.color = color.rgb(135, 206, 250)
 
