@@ -1,13 +1,13 @@
 from ursina import *
 from ursina.shaders import lit_with_shadows_shader 
-from ursina.prefabs.first_person_controller import FirstPersonController
+from ursina.prefabs.first_person_controller import FirstPersonController 
 
 app = Ursina()
 
 red = False
 game = True
 win = False
-printed = False
+printing = False
 
 models = {
     "staff" : "models/staff.obj",
@@ -108,14 +108,17 @@ def game_over2():
     game = False
     destroy(text)
     global text2
-    text2 = Text(text="GAME OVER", scale=4, x=0, y=.13, color = color.yellow) 
+    text2 = Text(text="GAME OVER", scale=2, x=-.30, y=.30, color = color.yellow) 
+    text2 = Text(text="Pulsa teclo R para \nreiniciar el juego", scale=2, x=-.30, y=.20, color = color.yellow) 
+
 
 def game_win2():
     global game_win1
     game_win1 = Game_win()
     destroy(text)
-    global text2
-    text2 = Text(text="GAME WIN", scale=4, x=0, y=.13, color = color.yellow) 
+    global text4
+    text4 = Text(text="GAME WIN", scale=2, x=-.30, y=.30, color = color.yellow) 
+    text4 = Text(text="Pulsa teclo G para \nreiniciar el juego", scale=2, x=-.30, y=.20, color = color.yellow) 
 
 def update_text_red():
     global red
@@ -137,29 +140,41 @@ def update_text_green():
 
 def update():
     cube_player.position = player.position
-
     if line.intersects(cube_player).hit:
         global game
-        game = False
         global win
+        game = False
         win = True
-        game_win2()
+        global printing
+        if printing == False:
+            printing = True
+            print("heu")
+            game_win2()
 
 def destroy_all_ui_elements():
     print(win)
     if win: 
         destroy(game_win1)
+        destroy(text4)
     if not win:
         destroy(game_over)
-    destroy(text2)
+        destroy(text2)
+    
     global printed 
     printed = False
+    for entity in scene.entities:
+        if isinstance(entity, Button) or isinstance(entity, Text) or isinstance(entity, Game_win) or isinstance(entity, Game_over):
+            destroy(entity)
+    for entity in scene.entities:
+        if isinstance(entity, Text):
+            destroy(entity)
 
 def text_initialize():
     global text
     text = Text(text="Green", scale=3, x=-.83, y=.45, color = color.green) 
 
 def restart():
+    player.speed = 13
     global game
     game = True
     global red
@@ -199,6 +214,11 @@ def input(key):
     global game
     if key == "r" and game == False and not win:
             restart()
+
+    if game == False:
+        if key == 'w' or key == 's' or key == 'a' or key == 'd':
+            player.speed = 0
+
 
 text_initialize()
 update_text_green()
