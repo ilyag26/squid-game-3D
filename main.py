@@ -5,6 +5,7 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 app = Ursina()
 
 red = False
+game = True
 
 models = {
     "staff" : "models/staff.obj",
@@ -45,24 +46,9 @@ class Walls:
 
 text = Text(text="Green", scale=3, x=-.83, y=.45, color = color.green) 
 
-def update_text_red():
-    red = True
-    text.text = "Red"
-    text.color = color.red
-    invoke(update_text_green, delay=3)
-
-def update_text_green():
-    red = False
-    text.text = "Green"
-    text.color = color.green
-    invoke(update_text_red, delay=3)
-
-def light():
-    invoke(update_text_green, delay=3)
-
 ground = Entity(model='plane', collider='box', scale=150, texture=textures['sand'])
-line = Entity(model='cube', scale_x = 100, scale_y = 3, collider = "box", color = color.red)
-line.position = Vec3(0, 0, -40)
+line = Entity(model='cube', scale_x = 100, scale_y = 2, collider = "box", color = color.red)
+line.position = Vec3(0, -0.92, -40)
 # line.position = Vec3(0, 0.08, -40)
 
 #scale_x, scale_z, rotation_x, rotation_y, rotation_z, pos_x, pos_y, pos_z
@@ -75,26 +61,55 @@ back_wall = Walls(100, 70, 90, -180, 0, 0, 0, 50)
 staff = Staff(0, -180, 0, 4, 0, -52, 1.5)
 staff2 = Staff(0, -180, 0, -4, 0, -52, 1.5)
 
-doll = Entity(model=models['doll'], rotation=(0, -180, 0), shader = lit_with_shadows_shader)
+doll = Entity(model=models['doll'], rotation=(0, 0, 0), shader = lit_with_shadows_shader)
 doll.position = Vec3(0, 0, -52)
 
 tree = Entity(model=models['tree'], rotation=(0, -90, 0), shader = lit_with_shadows_shader)
 tree.position = Vec3(0, 0, -55.5)
 
-player = FirstPersonController(model='cube', scale = 0.5, z=-10, rotation=(0, -180, 0), color=color.gray, origin_y=-.4, speed=13)
-player.position = Vec3(0, 0, 45)
-text1 = Text(text="000", scale=3, x=-.83, y=.45) 
+player = FirstPersonController(rotation=(0, -180, 0), speed=13)
+player.position = Vec3(0, -0.4, 45)
+text1 = Text(text="", scale=3, x=-.83, y=.45) 
 
-cube_player = Entity(model="cube", scale = 1, color = color.orange, collider="box")
-cube_player.position = Vec3(0, 0, 45)
+cube_player = Entity(scale = 1, color = color.orange, collider="box")
+cube_player.position = Vec3(0, -0.4, 45)
+
+def game_over():
+    global game
+    game = False
+    screen_over = Entity(model="plane", scale = 1, color = color.red)
+    text.text = ""
+    text2 = Text(text="GAME OVER", scale=4, x=0, y=0, color = color.yellow) 
+
+def update_text_red():
+    global red
+    red = True
+    if game:
+        text.text = "Red"
+        text.color = color.red
+        doll.rotation = (0, 180, 0)
+        invoke(update_text_green, delay=3)
+
+def update_text_green():
+    global red
+    red = False
+    if game:
+        text.text = "Green"
+        text.color = color.green
+        doll.rotation = (0, 0, 0)
+        invoke(update_text_red, delay=3)
+
+def light():
+    invoke(update_text_green, delay=3)
 
 def update():
     cube_player.position = player.position
 
     if line.intersects(cube_player).hit:
-        text1.text = "has cruzado linea"
-    else:
-        text1.text = ""
+        global game
+        game = False
+        text.text = "Has cruzado linea. ¡Has ganado!"
+        text.color = color.green
 
 window.color = color.rgb(135, 206, 250)
 
@@ -109,6 +124,10 @@ pivot = Entity()
 def input(key):
     if key == 'escape':
         quit()
+    global red
+    if key == 'w' or key == 's' or key == 'a' or key == 'd':
+        if red == True:
+            game_over()
 
 light()
 
