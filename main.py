@@ -7,6 +7,7 @@ app = Ursina()
 red = False
 game = True
 win = False
+printed = False
 
 models = {
     "staff" : "models/staff.obj",
@@ -110,13 +111,9 @@ def game_over2():
     text2 = Text(text="GAME OVER", scale=4, x=0, y=.13, color = color.yellow) 
 
 def game_win2():
-    global game_win
-    game_win = Game_win()
-    global game
-    game = False
+    global game_win1
+    game_win1 = Game_win()
     destroy(text)
-    global win 
-    win = True
     global text2
     text2 = Text(text="GAME WIN", scale=4, x=0, y=.13, color = color.yellow) 
 
@@ -144,14 +141,19 @@ def update():
     if line.intersects(cube_player).hit:
         global game
         game = False
+        global win
+        win = True
         game_win2()
 
 def destroy_all_ui_elements():
-    if win:
-        destroy(game_win)
+    print(win)
+    if win: 
+        destroy(game_win1)
     if not win:
         destroy(game_over)
     destroy(text2)
+    global printed 
+    printed = False
 
 def text_initialize():
     global text
@@ -168,6 +170,8 @@ def restart():
     destroy_all_ui_elements()
     text_initialize()
     update_text_green()
+    global win 
+    win= False
 
 window.color = color.rgb(135, 206, 250)
 
@@ -182,15 +186,18 @@ pivot = Entity()
 def input(key):
     if key == 'escape':
         quit()
-    global red
 
+    global red
     if key == 'w' or key == 's' or key == 'a' or key == 'd':
         if red == True:
             game_over2()
 
+    global win
+    if key == "g" and win == True:
+            restart()
+    
     global game
-    if key == "r":
-        if game == False:
+    if key == "r" and game == False and not win:
             restart()
 
 text_initialize()
