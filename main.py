@@ -6,6 +6,7 @@ app = Ursina()
 
 red = False
 game = True
+win = False
 
 models = {
     "staff" : "models/staff.obj",
@@ -19,6 +20,34 @@ textures = {
     "field" : "textures/field.png",
     "hand" : "textures/hand.png"
 }
+
+class Game_over(Entity):
+    def __init__(self, width=5, height=8, **kwargs):
+        super().__init__(
+            parent = camera.ui,
+            model = Quad(radius=.015),
+            scale = (width*.1, height*.1),
+            origin = (-.5,.5),
+            position = (-.3,.4),
+            color = color.hsv(0,181,225),
+            )
+
+        self.width = width
+        self.height = height
+
+class Game_win(Entity):
+    def __init__(self, width=5, height=8, **kwargs):
+        super().__init__(
+            parent = camera.ui,
+            model = Quad(radius=.015),
+            scale = (width*.1, height*.1),
+            origin = (-.5,.5),
+            position = (-.3,.4),
+            color = color.hsv(140,255,200),
+            )
+
+        self.width = width
+        self.height = height
 
 class UI(Entity):
     def __init__(self):
@@ -44,8 +73,6 @@ class Walls:
                         collider='box', texture = textures['field'])
         self.wall.position = Vec3(pos_x, pos_y, pos_z)
 
-text = Text(text="Green", scale=3, x=-.83, y=.45, color = color.green) 
-
 ground = Entity(model='plane', collider='box', scale=150, texture=textures['sand'])
 line = Entity(model='cube', scale_x = 100, scale_y = 2, collider = "box", color = color.red)
 line.position = Vec3(0, -0.92, -40)
@@ -69,17 +96,29 @@ tree.position = Vec3(0, 0, -55.5)
 
 player = FirstPersonController(rotation=(0, -180, 0), speed=13)
 player.position = Vec3(0, -0.4, 45)
-text1 = Text(text="", scale=3, x=-.83, y=.45) 
 
 cube_player = Entity(scale = 1, color = color.orange, collider="box")
 cube_player.position = Vec3(0, -0.4, 45)
 
-def game_over():
+def game_over2():
+    global game_over
+    game_over = Game_over()
     global game
     game = False
-    screen_over = Entity(model="plane", scale = 1, color = color.red)
-    text.text = ""
-    text2 = Text(text="GAME OVER", scale=4, x=0, y=0, color = color.yellow) 
+    destroy(text)
+    global text2
+    text2 = Text(text="GAME OVER", scale=4, x=0, y=.13, color = color.yellow) 
+
+def game_win2():
+    global game_win
+    game_win = Game_win()
+    global game
+    game = False
+    destroy(text)
+    global win 
+    win = True
+    global text2
+    text2 = Text(text="GAME WIN", scale=4, x=0, y=.13, color = color.yellow) 
 
 def update_text_red():
     global red
@@ -99,17 +138,36 @@ def update_text_green():
         doll.rotation = (0, 0, 0)
         invoke(update_text_red, delay=3)
 
-def light():
-    invoke(update_text_green, delay=3)
-
 def update():
     cube_player.position = player.position
 
     if line.intersects(cube_player).hit:
         global game
         game = False
-        text.text = "Has cruzado linea. ¡Has ganado!"
-        text.color = color.green
+        game_win2()
+
+def destroy_all_ui_elements():
+    if win:
+        destroy(game_win)
+    if not win:
+        destroy(game_over)
+    destroy(text2)
+
+def text_initialize():
+    global text
+    text = Text(text="Green", scale=3, x=-.83, y=.45, color = color.green) 
+
+def restart():
+    global game
+    game = True
+    global red
+    red = False
+    cube_player.position = Vec3(0, -0.4, 45)
+    player.position = Vec3(0, -0.4, 45)
+    doll.rotation = (0, 0, 0)
+    destroy_all_ui_elements()
+    text_initialize()
+    update_text_green()
 
 window.color = color.rgb(135, 206, 250)
 
@@ -125,12 +183,18 @@ def input(key):
     if key == 'escape':
         quit()
     global red
+
     if key == 'w' or key == 's' or key == 'a' or key == 'd':
         if red == True:
-            game_over()
+            game_over2()
 
-light()
+    global game
+    if key == "r":
+        if game == False:
+            restart()
 
+text_initialize()
+update_text_green()
 UI()
 Sky()
 app.run()
